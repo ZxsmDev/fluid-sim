@@ -13,7 +13,9 @@ export default class SimStep {
       this.steps++;
       this.currentStep = e.target.value;
       this.sim.step = this.currentStep;
-      console.log(`Sim Step: ${this.sim.step}, Total Steps: ${this.steps}`);
+      console.log(
+        `Looping: ${this.sim.params.loop}, Current Step: ${this.sim.params.step}, Total Steps: ${this.steps}`
+      );
     });
   }
   startLoop() {
@@ -32,8 +34,8 @@ export default class SimStep {
   loop(time) {
     if (!this.lastTime) this.lastTime = time;
 
-    // const delta = (time - this.lastTime) / 1000;
-    // this.lastTime = time;
+    const delta = (time - this.lastTime) / 1000;
+    this.lastTime = time;
 
     this.sim.resizeCanvas();
     this.sim.ctx.clearRect(0, 0, this.sim.width, this.sim.height);
@@ -46,8 +48,19 @@ export default class SimStep {
     }
 
     this.sim.ctx.fillStyle = "white";
-    this.sim.ctx.font = "16px Arial";
+    this.sim.ctx.font = "16px Courier New";
     this.sim.ctx.fillText(`FPS: ${this.fps}`, this.sim.width - 80, 20);
+
+    this.sim.boundaries(delta);
+
+    this.sim.pool.update(delta);
+    this.sim.pool.render();
+
+    this.sim.ctx.strokeStyle = "red";
+    this.sim.ctx.beginPath();
+    this.sim.ctx.moveTo(this.sim.bounds[1].x / 2, this.sim.bounds[1].y);
+    this.sim.ctx.lineTo(this.sim.bounds[1].x / 2, this.sim.bounds[3].y);
+    this.sim.ctx.stroke()
 
     this._frameId = requestAnimationFrame(this.loop.bind(this));
   }
