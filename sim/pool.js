@@ -18,19 +18,25 @@ export default class Pool {
     });
   }
   spawnParticles() {
+    let numRows = this.sim.params["rows"] || 1;
+    let columns = Math.ceil(this.poolSize / numRows);
+
     for (let i = 0; i < this.poolSize; i++) {
+      let x =
+        this.sim.bounds[1].x / 2 - (columns * this.sim.particleSize) / 2 +
+        (i % columns) * this.sim.particleSize +
+        this.sim.particleSize / 2;
+      let y = 100 + Math.floor(i / columns) * this.sim.particleSize;
+
       this.particles.push(
         new Particle(
           this.sim,
-          this.sim.bounds[1].x / 2 -
-            (this.poolSize * this.sim.particleSize) / 2 +
-            this.sim.particleSize / 2 +
-            i * this.sim.particleSize,
-          0,
+          x,
+          y,
           this.sim.particleSize,
           this.sim.particleSize,
-          this.sim.particleRadius
-        )
+          this.sim.particleRadius,
+        ),
       );
     }
   }

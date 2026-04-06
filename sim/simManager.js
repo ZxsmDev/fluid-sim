@@ -34,8 +34,6 @@ export default class SimManager {
     this.particleRadius = this.particleSize / 2;
     this.poolSize = this.params["count"] || 10;
     this.pool = new Pool(this, this.poolSize);
-
-    this.damping = 1;
   }
   init() {
     this.steps.start();
@@ -62,6 +60,11 @@ export default class SimManager {
             }
           }
         }
+        // Update dependent properties
+        this.particleSize = this.params["size"];
+        this.particleRadius = this.particleSize / 2;
+        this.poolSize = this.params["count"];
+        this.pool.poolSize = this.poolSize;
         console.log(this.params);
       });
     });
@@ -87,35 +90,5 @@ export default class SimManager {
         { x: 10, y: this.height - 10 }, // Bottom Left
       ];
     }
-  }
-  boundaries(dt) {
-    // Draw
-    this.ctx.strokeStyle = "green";
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.bounds[3].x, this.bounds[3].y);
-    for (let i in this.bounds) {
-      this.ctx.lineTo(this.bounds[i].x, this.bounds[i].y);
-    }
-    this.ctx.stroke();
-
-    this.pool.particles.forEach((particle) => {
-      // Run Collision
-      if (particle.pos.x - particle.size.radius < this.bounds[0].x) {
-        particle.pos.x = this.bounds[0].x + particle.size.radius;
-        particle.velocity.x *= -this.damping;
-      }
-      if (particle.pos.y - particle.size.radius < this.bounds[0].y) {
-        particle.pos.y = this.bounds[0].y + particle.size.radius;
-        particle.velocity.y *= -this.damping;
-      }
-      if (particle.pos.x + particle.size.radius > this.bounds[2].x) {
-        particle.pos.x = this.bounds[2].x - particle.size.radius;
-        particle.velocity.x *= -this.damping;
-      }
-      if (particle.pos.y + particle.size.radius > this.bounds[2].y) {
-        particle.pos.y = this.bounds[2].y - particle.size.radius;
-        particle.velocity.y *= -this.damping;
-      }
-    });
   }
 }
