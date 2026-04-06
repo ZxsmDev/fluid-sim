@@ -1,4 +1,4 @@
-import SimStep from "./simStep.js";
+import SimStep from "./stepLoop.js";
 import Pool from "./pool.js";
 
 export default class SimManager {
@@ -30,9 +30,12 @@ export default class SimManager {
       { x: 10, y: this.height - 10 }, // Bottom Left
     ];
 
+    this.poolSize = this.params["count"] || 10;
     this.particleSize = this.params["size"] || 25;
     this.particleRadius = this.particleSize / 2;
-    this.poolSize = this.params["count"] || 10;
+    this.smoothingRadius;
+    this.targetDensity;
+    this.pressureMultiplier;
     this.pool = new Pool(this, this.poolSize);
   }
   init() {
@@ -60,12 +63,16 @@ export default class SimManager {
             }
           }
         }
-        // Update dependent properties
-        this.particleSize = this.params["size"];
-        this.particleRadius = this.particleSize / 2;
-        this.poolSize = this.params["count"];
-        this.pool.poolSize = this.poolSize;
-        console.log(this.params);
+        if (typeof this.params !== "undefined") {
+          // Update dependent properties
+          this.pool.poolSize = this.params["count"] || 10;
+          this.pool.particleSize = this.params["size"] || 25;
+          this.pool.particleRadius = this.particleSize / 2;
+          this.pool.smoothingRadius;
+          this.pool.targetDensity;
+          this.pool.pressureMultiplier;
+          console.log(this.params);
+        }
       });
     });
   }

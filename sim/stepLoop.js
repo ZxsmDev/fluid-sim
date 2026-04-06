@@ -1,4 +1,4 @@
-export default class SimStep {
+export default class StepLoop {
   constructor(sim) {
     this.sim = sim;
     this.currentStep = 0;
@@ -50,7 +50,11 @@ export default class SimStep {
     this.sim.ctx.fillStyle = "white";
     this.sim.ctx.font = "16px Courier New";
     this.sim.ctx.fillText(`FPS: ${this.fps}`, this.sim.width - 130, 20);
-    this.sim.ctx.fillText(`Delta: ${delta.toFixed(3)}`, this.sim.width - 130, 40);
+    this.sim.ctx.fillText(
+      `Delta: ${delta.toFixed(3)}`,
+      this.sim.width - 130,
+      40
+    );
 
     this.sim.pool.update(delta);
     this.sim.pool.render();
