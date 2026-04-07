@@ -1,3 +1,7 @@
 # fluid-sim
 
-[Link to presentation](resources\fluids_notes.pdf)
+## TODO
+
+- Fix crackhead particles and gravity collapse
+- Optimize search algorithms to increase performance with high particle counts
+- adjust particle color based on lerp of speed to gradient

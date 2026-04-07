@@ -26,7 +26,7 @@
         position: absolute;
         left: 0;
         top: 0;
-        width: 25%;
+        width: 40%;
         display: flex;
         align-items: start;
       }
@@ -78,7 +78,7 @@
       }
       input {
         font-family: "Courier New", Courier, monospace;
-        width: 50px;
+        width: 100px;
         padding: 6px;
         border-radius: 5px;
       }
@@ -126,36 +126,14 @@
             <h2>Parameters:</h2>
             <button id="collapse"><span class="caret">^</span></button>
           </header>
-          <!--
-          SIM STEPS:
-            min = 0/1
-            max = inf
-            place = 1
-          
-          SIZE:
-            min = 5
-            max = 50
-            place = 25
-
-          COUNT:
-            min = 1
-            max = 10,000
-            place = 100
-
-          ROWS:
-            min = 1
-            max = 100
-            place = 10
-
-          SPACING:
-            min = 1
-            max = 20
-            place = 5
-          -->
           <ul>
             <li>
               <label for="loop">Loop?</label>
               <input name="loop" type="checkbox" value="on" />
+            </li>
+            <li>
+              <label for="drawSmoothing">Draw Smoothing?</label>
+              <input name="drawSmoothing" type="checkbox" value="off" />
             </li>
             <li>
               <label for="step">Simulation Step</label
@@ -169,19 +147,81 @@
             </li>
             <li>
               <label for="size">Particle Size</label>
-              <input name="size" type="number" value="25" placeholder="25" min="5" max="50" />
+              <input
+                name="size"
+                type="number"
+                value="25"
+                placeholder="25"
+                min="5"
+                max="50"
+              />
             </li>
             <li>
               <label for="count">Particle Count</label>
-              <input name="count" type="number" value="100" placeholder="100" min="1" max="10000" />
+              <input
+                name="count"
+                type="number"
+                value="100"
+                placeholder="100"
+                min="1"
+                max="10000"
+              />
             </li>
             <li>
               <label for="rows">Spawn Rows</label>
-              <input name="rows" type="number" value="10" placeholder="10" min="1" max="100" />
+              <input
+                name="rows"
+                type="number"
+                value="10"
+                placeholder="10"
+                min="1"
+                max="100"
+              />
             </li>
-             <li>
+            <li>
               <label for="spacing">Particle Spacing</label>
-              <input name="spacing" type="number" value="5" placeholder="5" min="1" max="20" />
+              <input
+                name="spacing"
+                type="number"
+                value="5"
+                placeholder="5"
+                min="1"
+                max="20"
+              />
+            </li>
+
+            <li>
+              <label for="smoothingRadius">Smoothing Radius</label>
+              <input
+                name="smoothingRadius"
+                type="number"
+                value="50"
+                placeholder="50"
+                min="1"
+                max="100"
+              />
+            </li>
+            <li>
+              <label for="targetDensity">Target Density</label>
+              <input
+                name="targetDensity"
+                type="number"
+                value="25"
+                placeholder="25"
+                min="1"
+                max="100"
+              />
+            </li>
+            <li>
+              <label for="pressureMult">Pressure Multiplier</label>
+              <input
+                name="pressureMult"
+                type="number"
+                value="2"
+                placeholder="2"
+                min="1"
+                max="100"
+              />
             </li>
           </ul>
         </main>

@@ -5,17 +5,42 @@ export default class Pool {
     this.sim = sim;
     this.poolSize = size;
     this.particles = [];
+
     this.spawnParticles();
   }
   update(dt) {
-    this.particles.forEach((i) => {
-      i.update(dt);
+    this.particles.forEach((particle) => {
+      particle.density = this.calcDensity(particle.pos);
+
+      const pressureForce = this.calcPressureForce(particle.pos);
+      const viscosityForce = this.calcViscosityForce(
+        particle.pos,
+        particle.velocity,
+      );
+      const totalForce = {
+        x: pressureForce.x + viscosityForce.x,
+        y: pressureForce.y + viscosityForce.y,
+      };
+      const pressureAcceleration = {
+        x: particle.density > 0 ? totalForce.x / particle.density : 0,
+        y: particle.density > 0 ? totalForce.y / particle.density : 0,
+      };
+
+      particle.update(dt, pressureAcceleration);
     });
   }
   render() {
     this.particles.forEach((i) => {
       i.render();
     });
+
+    this.sim.ctx.strokeStyle = "green";
+    this.sim.ctx.beginPath();
+    this.sim.ctx.moveTo(this.sim.bounds[3].x, this.sim.bounds[3].y);
+    for (let i = 0; i < this.sim.bounds.length; i++) {
+      this.sim.ctx.lineTo(this.sim.bounds[i].x, this.sim.bounds[i].y);
+    }
+    this.sim.ctx.stroke();
   }
   spawnParticles() {
     let numRows = this.sim.params["rows"] || 1;
@@ -36,56 +61,102 @@ export default class Pool {
           y,
           this.sim.particleSize,
           this.sim.particleSize,
-          this.sim.particleRadius
-        )
+          this.sim.particleRadius,
+        ),
       );
     }
   }
   smoothingKernel(radius, dist) {
     let volume = (Math.PI * radius ** 8) / 4;
-    let value = Max(0, radius ** 2 - dist ** 2);
+    let value = Math.max(0, radius ** 2 - dist ** 2);
     return value ** 3 / volume;
   }
   smoothingKernelDerivative(dist, radius) {
+    if (!radius || isNaN(radius) || isNaN(dist)) return 0;
     if (dist >= radius) return 0;
     let f = radius ** 2 - dist ** 2;
     let scale = -24 / (Math.PI * radius ** 8);
     return scale * dist * f ** 2;
   }
   calcDensity(vec) {
-    // This needs to run in a loop
     let density = 0;
 
-    let distance = this.findMagnitude({
-      x: this.pos.x - vec.x,
-      y: this.pos.y - vec.y,
-    });
+    this.particles.forEach((particle) => {
+      let distance = this.findMagnitude({
+        x: particle.pos.x - vec.x,
+        y: particle.pos.y - vec.y,
+      });
 
-    let influence = this.smoothingKernel(this.smoothingRadius, distance);
-    density += this.mass * influence;
+      let influence = this.smoothingKernel(this.sim.smoothingRadius, distance);
+      density += particle.mass * influence;
+    });
 
     return density;
   }
   calcPressureForce(vec) {
     let pressureForce = { x: 0, y: 0 };
 
-    for (let i = 0; i < this.sim.poolSize; i++) {
-      let dist = this.findMagnitude(this.sim.pool.particles[i].pos - vec);
-      let dir = (this.sim.pool.particles[i].pos - vec) / dist;
-      let slope = this.smoothingKernelDerivative(dist, this.smoothingRadius);
-      let density = this.calcDensity(this.sim.pool.particles[i].pos); // cache density values
-      pressureForce +=
-        (-this.convertDensityToPressure(density) * dir * slope * mass) /
-        density;
+    for (let i = 0; i < this.poolSize; i++) {
+      const diff = {
+        x: this.particles[i].pos.x - vec.x,
+        y: this.particles[i].pos.y - vec.y,
+      };
+      const dist = this.findMagnitude(diff);
+      if (dist < 0.0001) continue; // skip self for division by 0
+
+      const dir = { x: diff.x / dist, y: diff.y / dist };
+
+      let slope = this.smoothingKernelDerivative(
+        dist,
+        this.sim.smoothingRadius,
+      );
+
+      if (this.particles[i].density < 0.0001) continue; // skip zero density
+
+      const pressureI = this.convertDensityToPressure(
+        this.particles[i].density,
+      );
+      const neighborForce =
+        (-pressureI * slope * this.particles[i].mass) /
+        this.particles[i].density;
+
+      pressureForce.x += neighborForce * dir.x;
+      pressureForce.y += neighborForce * dir.y;
     }
     return pressureForce;
+  }
+  calcViscosityForce(vec, velocity) {
+    let viscosityForce = { x: 0, y: 0 };
+    const viscosity = 0.001;
+
+    for (let i = 0; i < this.poolSize; i++) {
+      const diff = {
+        x: this.particles[i].pos.x - vec.x,
+        y: this.particles[i].pos.y - vec.y,
+      };
+      const dist = this.findMagnitude(diff);
+      if (dist < 0.0001) continue;
+
+      const velDiff = {
+        x: this.particles[i].velocity.x - velocity.x,
+        y: this.particles[i].velocity.y - velocity.y,
+      };
+
+      let influence = this.smoothingKernel(this.sim.smoothingRadius, dist);
+
+      viscosityForce.x +=
+        viscosity * this.particles[i].mass * velDiff.x * influence;
+      viscosityForce.y +=
+        viscosity * this.particles[i].mass * velDiff.y * influence;
+    }
+    return viscosityForce;
   }
   findMagnitude(vec) {
     return Math.sqrt(vec.x ** 2 + vec.y ** 2);
   }
   convertDensityToPressure(density) {
-    let densityError = density - targetDensity;
-    let pressure = densityError * pressureMultiplier;
+    let densityError = density - this.sim.targetDensity;
+    let pressure = densityError * this.sim.pressureMultiplier;
     return pressure;
   }
 }

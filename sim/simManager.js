@@ -16,7 +16,7 @@ export default class SimManager {
 
     document.querySelectorAll("input").forEach((element) => {
       if (element.type !== "checkbox") {
-        this.params[element.name] = element.value;
+        this.params[element.name] = parseFloat(element.value);
       } else {
         this.params[element.name] = element.checked;
       }
@@ -33,9 +33,9 @@ export default class SimManager {
     this.poolSize = this.params["count"] || 10;
     this.particleSize = this.params["size"] || 25;
     this.particleRadius = this.particleSize / 2;
-    this.smoothingRadius;
-    this.targetDensity;
-    this.pressureMultiplier;
+    this.smoothingRadius = this.params["smoothingRadius"] || 50;
+    this.targetDensity = this.params["targetDensity"] || 300;
+    this.pressureMultiplier = this.params["pressureMult"] || 1500;
     this.pool = new Pool(this, this.poolSize);
   }
   init() {
@@ -51,7 +51,7 @@ export default class SimManager {
     inputs.forEach((element) => {
       element.addEventListener("change", (e) => {
         if (element.type !== "checkbox") {
-          this.params[element.name] = e.target.value;
+          this.params[element.name] = parseFloat(e.target.value);
         } else {
           this.params[element.name] = element.checked;
 
@@ -66,7 +66,6 @@ export default class SimManager {
         if (typeof this.params !== "undefined") {
           // Update dependent properties
           this.pool.poolSize = this.params["count"] || 10;
-          this.pool.particleSize = this.params["size"] || 25;
           this.pool.particleRadius = this.particleSize / 2;
           this.pool.smoothingRadius;
           this.pool.targetDensity;

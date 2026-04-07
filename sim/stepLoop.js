@@ -59,13 +59,6 @@ export default class StepLoop {
     this.sim.pool.update(delta);
     this.sim.pool.render();
 
-    // Center line for ref
-    // this.sim.ctx.strokeStyle = "red";
-    // this.sim.ctx.beginPath();
-    // this.sim.ctx.moveTo(this.sim.bounds[1].x / 2, this.sim.bounds[1].y);
-    // this.sim.ctx.lineTo(this.sim.bounds[1].x / 2, this.sim.bounds[3].y);
-    // this.sim.ctx.stroke()
-
     this._frameId = requestAnimationFrame(this.loop.bind(this));
   }
 }
