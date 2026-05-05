@@ -34,7 +34,7 @@ export default class StepLoop {
   loop(time) {
     if (!this.lastTime) this.lastTime = time;
 
-    const delta = (time - this.lastTime) / 1000;
+    const delta = (time - this.lastTime) / 10000;
     this.lastTime = time;
 
     this.sim.resizeCanvas();

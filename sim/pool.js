@@ -15,7 +15,7 @@ export default class Pool {
       const pressureForce = this.calcPressureForce(particle.pos);
       const viscosityForce = this.calcViscosityForce(
         particle.pos,
-        particle.velocity,
+        particle.velocity
       );
       const totalForce = {
         x: pressureForce.x + viscosityForce.x,
@@ -32,6 +32,26 @@ export default class Pool {
   render() {
     this.particles.forEach((i) => {
       i.render();
+
+      if (this.sim.params["vectorArrows"]) {
+        this.drawForceArrow(
+          this.sim.ctx,
+          i.pos.x,
+          i.pos.y,
+          0,
+          9.81,
+          "orangered"
+        ); // Gravity
+        const pressure = this.calcPressureForce(i.pos);
+        this.drawForceArrow(
+          this.sim.ctx,
+          i.pos.x,
+          i.pos.y,
+          pressure.x * 5,
+          pressure.y * 5,
+          "lightgreen"
+        ); // Pressure
+      }
     });
 
     this.sim.ctx.strokeStyle = "green";
@@ -61,8 +81,8 @@ export default class Pool {
           y,
           this.sim.particleSize,
           this.sim.particleSize,
-          this.sim.particleRadius,
-        ),
+          this.sim.particleRadius
+        )
       );
     }
   }
@@ -108,13 +128,13 @@ export default class Pool {
 
       let slope = this.smoothingKernelDerivative(
         dist,
-        this.sim.smoothingRadius,
+        this.sim.smoothingRadius
       );
 
       if (this.particles[i].density < 0.0001) continue; // skip zero density
 
       const pressureI = this.convertDensityToPressure(
-        this.particles[i].density,
+        this.particles[i].density
       );
       const neighborForce =
         (-pressureI * slope * this.particles[i].mass) /
@@ -158,5 +178,34 @@ export default class Pool {
     let densityError = density - this.sim.targetDensity;
     let pressure = densityError * this.sim.pressureMultiplier;
     return pressure;
+  }
+  drawForceArrow(ctx, x, y, fx, fy, color) {
+    if (fx < 2 && fy < 2) return;
+
+    const arrowLength = 10;
+    const arrowHeadSize = 15;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + fx * arrowLength, y + fy * arrowLength);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw arrowhead
+    const angle = Math.atan2(fy, fx);
+    ctx.beginPath();
+    ctx.moveTo(x + fx * arrowLength, y + fy * arrowLength);
+    ctx.lineTo(
+      x + fx * arrowLength - arrowHeadSize * Math.cos(angle - Math.PI / 6),
+      y + fy * arrowLength - arrowHeadSize * Math.sin(angle - Math.PI / 6)
+    );
+    ctx.lineTo(
+      x + fx * arrowLength - arrowHeadSize * Math.cos(angle + Math.PI / 6),
+      y + fy * arrowLength - arrowHeadSize * Math.sin(angle + Math.PI / 6)
+    );
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
   }
 }

@@ -17,7 +17,7 @@ export default class Particle {
   update(dt, pressureAcceleration) {
     this.velocity.x += pressureAcceleration.x * dt;
     this.velocity.y += pressureAcceleration.y * dt;
-    this.velocity.y += this.gravity_px * dt;
+    this.velocity.y += this.gravity_px * 4 * dt;
     this.pos.x += this.velocity.x * dt;
     this.pos.y += this.velocity.y * dt;
 
@@ -31,7 +31,7 @@ export default class Particle {
         this.pos.y,
         this.sim.params.smoothingRadius,
         0,
-        2 * Math.PI,
+        2 * Math.PI
       );
       this.sim.ctx.fillStyle = "rgba(3, 0, 104, 0.1 )";
       this.sim.ctx.fill();
